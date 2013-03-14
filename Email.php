@@ -135,11 +135,14 @@ class Email extends CApplicationComponent {
 	private function mail($to, $subject, $message) {
 		switch ($this->delivery) {
 			case 'php':
-                $subject = '=?utf-8?B?' . base64_encode($subject) . '?=';
 				$message = wordwrap($message, $this->lineLength);
-				//mb_language($this->language);
-				return mail($to, $subject, $message, implode("\r\n", $this->createHeaders()));               
-			case 'debug':            
+
+                mb_language($this->language);
+                mb_internal_encoding($this->contentType);
+
+				//return mail($to, $subject, $message, implode("\r\n", $this->createHeaders()));
+				return mb_send_mail($to, $subject, $message, implode("\r\n", $this->createHeaders()));
+			case 'debug':
 				$debug = Yii::app()->controller->renderPartial('email.debug',
 						array_merge(compact('to', 'subject', 'message'), array('headers'=>$this->createHeaders())),
 						true);
